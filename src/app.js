@@ -24,6 +24,11 @@ app.use(
   }),
 );
 
+//import ROUTE
+import healthCheckRouter from "./routes/healthcheck.routes.js";
+
+app.use("/api/v1/healthcheck.js", healthCheckRouter);
+
 app.get("/", (req, res) => {
   res.send("Welcome to the BETA");
 });
