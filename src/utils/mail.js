@@ -32,6 +32,7 @@ const sendEmail = async (options) => {
 
   try {
     await transporter.sendMail(mail);
+    //transporter.sendMail() is a method of 'transport' not our function
   } catch (error) {
     console.error("Check MAILTRAP credentials in  .env");
     console.error("Error: ", error);

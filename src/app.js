@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -11,6 +12,8 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 //to SUPPORT IT
 app.use(express.static("public"));
 //to make "public" folder globally visible
+
+app.use(cookieParser());
 
 //CORS CONFIGURATION
 //where my FONTEND LIES
@@ -26,8 +29,12 @@ app.use(
 
 //import ROUTE
 import healthCheckRouter from "./routes/healthcheck.routes.js";
+import authRouter from "./routes/auth.routes.js";
 
 app.use("/api/v1/healthcheck.js", healthCheckRouter);
+app.use("/api/v1/auth", authRouter);
+
+// /api/v1/healthcheck.js
 
 app.get("/", (req, res) => {
   res.send("Welcome to the BETA");

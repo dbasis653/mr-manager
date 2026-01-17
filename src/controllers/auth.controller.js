@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { ApiError } from "../utils/api-error.js";
 import { emailVerificationMailContent, sendEmail } from "../utils/mail.js";
+// import { use } from "react.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -70,9 +71,12 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken -forgotPasswordToken -forgotPasswordExpiry -emailVerificationToken -emailVerificationExpiry -",
+    "-password -refreshToken -forgotPasswordToken -forgotPasswordExpiry -emailVerificationToken -emailVerificationExpiry",
     //field with ‘-’ will be ignored
   );
+  // 👉 It fetches the same user again from the database,
+  // 👉 but removes sensitive fields,
+  // 👉 so it is safe to send back to the client.
 
   if (!createdUser) {
     throw new ApiError(500, " Problem in registering user");
@@ -89,4 +93,59 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 });
 
-export { registerUser };
+const login = asyncHandler(async (req, res) => {
+  //taking data from FRONTEND
+  const { email, password, username } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  //find the data
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(400, "User doesnot exist");
+  }
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(400, "Invalid credentials");
+  }
+
+  //generate TOKENS
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id,
+  );
+
+  //send the tokens
+  const loggedinUser = await User.findById(user._id).select(
+    "-password -refreshToken -forgotPasswordToken -forgotPasswordExpiry -emailVerificationToken -emailVerificationExpiry",
+  );
+
+  //set cookies with tokens
+  //below code means:
+  //these are secure COOKIES only browser can access
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: loggedinUser,
+          accessToken,
+          refreshToken,
+        },
+        "User logged in successfully",
+      ),
+    );
+});
+
+export { registerUser, login };
