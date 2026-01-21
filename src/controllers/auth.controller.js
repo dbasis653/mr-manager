@@ -8,6 +8,8 @@ import {
   sendEmail,
 } from "../utils/mail.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+
 // import { use } from "react.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -209,11 +211,11 @@ const verifyEmail = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email verification Token is missing");
   }
 
-  //we we login a user, HASHED TOKEN is stored in the DB
-  //UNHASHED TOKEN is sent to the use
+  //we login a user, HASHED TOKEN is stored in the DB
+  //UNHASHED TOKEN is sent to the user
   //Now hash that unhashed token
   let hashedToken = crypto
-    .createHashed("sha256")
+    .createHash("sha256")
     .update(verificationToken)
     .digest("hex");
 
@@ -266,7 +268,7 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
     subject: "Verify your mail",
     mailGenContent: emailVerificationMailContent(
       user.username,
-      `${req.prototype}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`,
+      `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`,
     ),
   });
 

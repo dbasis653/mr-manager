@@ -27,7 +27,7 @@ const router = Router();
 router.route("/register").post(userRegisterValidator(), validate, registerUser);
 router.route("/login").post(userLoginValidator(), validate, login);
 //since we have no validation for LOGIN yet
-router.route("/verify-email/verificationToken").get(verifyEmail);
+router.route("/verify-email/:verificationToken").get(verifyEmail);
 router.route("/refresh-token").post(refreshAccessToken);
 router
   .route("/forgot-password")
