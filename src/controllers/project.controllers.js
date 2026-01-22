@@ -157,7 +157,7 @@ const addMembersToProject = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User doesnot exist");
   }
 
-  await ProjectMember.findByIdAndUpdate(
+  await ProjectMember.findOneAndUpdate(
     {
       //Which ProjectMember document are we talking about?
       user: new mongoose.Types.ObjectId(user._id),
@@ -184,7 +184,7 @@ const addMembersToProject = asyncHandler(async (req, res) => {
 const getProjectMembers = asyncHandler(async (req, res) => {
   //find the project > get the members of the project
   const { projectId } = req.params;
-  const project = await Project.findById(req.params);
+  const project = await Project.findById(projectId);
   // const project = await Project.findById(projectId);
 
   if (!project) {
@@ -247,7 +247,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Role");
   }
 
-  let projectMember = await projectMember.findOne({
+  let projectMember = await ProjectMember.findOne({
     project: new mongoose.Types.ObjectId(projectId),
     user: new mongoose.Types.ObjectId(userId),
   });
@@ -284,7 +284,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
 const deleteMember = asyncHandler(async (req, res) => {
   const { projectId, userId } = req.params;
 
-  let projectMember = await projectMember.findOne({
+  let projectMember = await ProjectMember.findOne({
     project: new mongoose.Types.ObjectId(projectId),
     user: new mongoose.Types.ObjectId(userId),
   });

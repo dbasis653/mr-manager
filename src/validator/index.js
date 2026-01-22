@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import { AvailableUserRole } from "../utils/constants.js";
 
 //userRegisterValidator() does NOT send errors.
 //It only defines validation rules.
@@ -51,10 +52,35 @@ const userResetForgotPasswordValidator = () => {
   return [body("newPassword").notEmpty().withMessage("Password is required")];
 };
 
+const createProjectValidator = () => {
+  return [
+    body("name").notEmpty().withMessage("Name is required"),
+    body("description").optional(),
+  ];
+};
+
+const addMemberToProjectValidator = () => {
+  return [
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email"),
+    body("role")
+      .notEmpty()
+      .withMessage("Role is required")
+      .isIn(AvailableUserRole)
+      .withMessage("Role is invalid"),
+  ];
+};
+
 export {
   userRegisterValidator,
   userLoginValidator,
   userChangeCurrentPasswordValidator,
   userForgotPasswordValidator,
   userResetForgotPasswordValidator,
+  createProjectValidator,
+  addMemberToProjectValidator,
 };
